@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дело №001 — Курс AJTBD Tutu</title>
+  <style>
+    :root {
+      --purple:   #7D71FF;
+      --deep:     #0D0B68;
+      --orange:   #FF872E;
+      --green:    #00C95E;
+      --blue:     #5F94FF;
+      --cloud:    #EDEFFF;
+      --bg:       #ffffff;
+      --bg-gray:  #f5f4ff;
+      --border:   #e8e6ff;
+      --text:     #0D0B68;
+      --text2:    #555577;
+      --text3:    #8888aa;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+    body {
+      font-family: 'PT Sans', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── СЛАЙДОВАЯ ОБОЛОЧКА ── */
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ХЕДЕР */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 52px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+    }
+    .top-bar__logo { font-size: 16px; font-weight: 700; color: var(--text); }
+    .top-bar__logo span { color: var(--purple); }
+    .top-bar__meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text2); }
+    .progress-bar {
+      width: 120px; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .progress-bar__fill {
+      height: 100%; background: var(--purple); border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+    .slide-counter { font-size: 12px; color: var(--text3); white-space: nowrap; }
+
+    /* ── СЛАЙДЫ ── */
+    .slide {
+      display: none;
+      min-height: 100vh;
+      padding: 72px 0 40px;
+      animation: fadeIn 0.4s ease;
+    }
+    .slide.active { display: flex; flex-direction: column; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .slide-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* ── КНОПКИ ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 12px 28px; font-size: 15px; font-family: inherit; font-weight: 600;
+      border-radius: 10px; border: none; cursor: pointer;
+      transition: all 0.15s ease; text-decoration: none; line-height: 1;
+    }
+    .btn-primary { background: var(--purple); color: #fff; }
+    .btn-primary:hover { background: #6a55e0; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(125,113,255,0.4); }
+    .btn-white { background: #fff; color: var(--purple); }
+    .btn-white:hover { background: var(--cloud); }
+    .btn-outline { background: transparent; color: var(--purple); border: 2px solid var(--purple); }
+    .btn-outline:hover { background: var(--purple); color: #fff; }
+    .btn-sm { padding: 8px 18px; font-size: 13px; border-radius: 8px; }
+
+    /* ══ СЛАЙД 0: ОБЛОЖКА ══ */
+    .slide-cover {
+      background: linear-gradient(150deg, var(--deep) 0%, #1a1870 50%, #3d2f9e 100%);
+      color: #fff;
+      text-align: center;
+    }
+    .slide-cover .slide-inner { justify-content: center; }
+    .case-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 30px; padding: 6px 16px; font-size: 12px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+    .case-folder {
+      width: 100px; height: 80px; margin: 0 auto 32px;
+      position: relative;
+    }
+    .case-folder svg { width: 100%; height: 100%; }
+    .case-title {
+      font-size: clamp(32px, 6vw, 56px); font-weight: 700; line-height: 1.15;
+      margin-bottom: 20px; letter-spacing: -0.5px;
+    }
+    .case-title em { color: var(--purple); font-style: normal; display: block; }
+    .case-sub {
+      font-size: 18px; opacity: 0.8; margin-bottom: 40px; line-height: 1.6;
+      max-width: 420px; margin-left: auto; margin-right: auto;
+    }
+    .case-sub b { color: rgba(255,255,255,0.9); }
+
+    /* ══ СЛАЙД 1: ПЕРЕПИСКА ══ */
+    .chat-ui {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .chat-header {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 14px; margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .chat-title { font-size: 14px; font-weight: 600; }
+    .chat-time-label { font-size: 12px; color: var(--text3); margin-left: auto; }
+
+    .chat-msg { display: flex; gap: 10px; margin-bottom: 10px; }
+    .chat-msg.right { flex-direction: row-reverse; }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+      align-self: flex-start;
+    }
+    .avatar.cpo   { background: var(--orange); }
+    .avatar.anton { background: var(--purple); }
+    .avatar.marina{ background: var(--blue); }
+
+    .msg-bubble {
+      max-width: 80%; background: var(--bg-gray);
+      border-radius: 12px; padding: 10px 14px;
+      font-size: 14px; line-height: 1.6;
+    }
+    .chat-msg.right .msg-bubble { background: var(--purple); color: #fff; }
+    .msg-name { font-size: 11px; font-weight: 700; margin-bottom: 3px; color: var(--text2); }
+    .chat-msg.right .msg-name { color: rgba(255,255,255,0.7); }
+    .msg-time { font-size: 10px; color: var(--text3); margin-top: 3px; }
+    .chat-msg.right .msg-time { color: rgba(255,255,255,0.6); }
+
+    .chat-caption {
+      text-align: center; font-size: 13px; color: var(--text3);
+      font-style: italic; margin-top: 16px;
+    }
+
+    /* ══ СЛАЙД 2: УЛИКИ ══ */
+    .clue-board {
+      background: #2a1f14; border-radius: 16px; padding: 24px;
+      position: relative;
+    }
+    .clue-board-title {
+      color: #d4c5a0; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    .clues-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .clue-card {
+      background: #fdfbf0; border-radius: 8px;
+      padding: 14px; font-size: 13px; line-height: 1.6;
+      color: #2a1f14; position: relative;
+      box-shadow: 2px 3px 8px rgba(0,0,0,0.3);
+      transform: rotate(-0.5deg);
+    }
+    .clue-card:nth-child(2) { transform: rotate(0.8deg); }
+    .clue-card:nth-child(3) { transform: rotate(-0.3deg); }
+    .clue-card:nth-child(4) { transform: rotate(0.5deg); }
+    .clue-card:nth-child(5) { transform: rotate(-1deg); grid-column: 1; }
+    .clue-card-icon { font-size: 18px; margin-bottom: 6px; display: block; }
+    .clue-card b { display: block; font-weight: 700; margin-bottom: 4px; }
+
+    /* красная нить — декоративная */
+    .red-thread {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none; border-radius: 16px; overflow: hidden;
+    }
+
+    .clue-question {
+      color: #fff; font-size: 15px; font-weight: 600; margin-top: 20px;
+      text-align: center; padding: 14px; background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+    }
+
+    /* ══ СЛАЙД 3: ВЫБОР ══ */
+    .choice-question {
+      font-size: 18px; font-weight: 600; margin-bottom: 24px;
+      line-height: 1.5; text-align: center;
+    }
+    .choices-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 8px;
+    }
+    @media(max-width: 600px) {
+      .choices-grid { grid-template-columns: 1fr; }
+    }
+    .choice-card {
+      background: var(--bg-gray); border: 2px solid var(--border);
+      border-radius: 14px; padding: 18px 16px; cursor: pointer;
+      transition: all 0.2s ease; text-align: center;
+    }
+    .choice-card:hover { border-color: var(--purple); transform: translateY(-2px); background: #f0eeff; }
+    .choice-card.selected { border-color: var(--purple); background: #ede9ff; }
+    .choice-card.wrong { border-color: var(--orange); background: #fff5ee; }
+    .choice-card-label {
+      font-size: 11px; font-weight: 700; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;
+    }
+    .choice-card-text { font-size: 14px; line-height: 1.6; font-weight: 500; margin-bottom: 8px; }
+    .choice-card-hint { font-size: 12px; color: var(--text3); font-style: italic; }
+
+    /* ══ ПОСЛЕДСТВИЕ / ФИДБЕК ══ */
+    .consequence-bubble {
+      display: none;
+      background: var(--bg-gray); border-radius: 14px; padding: 20px;
+      margin-top: 20px; font-size: 14px; line-height: 1.7;
+      border-left: 4px solid var(--orange);
+      animation: fadeIn 0.3s ease;
+    }
+    .consequence-bubble.correct { border-left-color: var(--purple); }
+    .consequence-bubble.show { display: block; }
+
+    .feedback-popup {
+      display: none;
+      background: var(--deep); color: #fff;
+      border-radius: 12px; padding: 16px 20px;
+      font-size: 13px; line-height: 1.7; margin-top: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+    .feedback-popup .fb-icon { font-size: 18px; margin-bottom: 6px; display: block; }
+    .feedback-popup.show { display: block; }
+    .feedback-popup.purple { background: #3d2f9e; }
+
+    /* ══ СЛАЙД 5: КОНЦЕПЦИЯ ══ */
+    .concept-box {
+      background: var(--bg-gray); border-radius: 16px; padding: 28px;
+      margin-bottom: 20px;
+    }
+    .concept-heading { font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+    .concept-text { font-size: 15px; line-height: 1.8; color: var(--text); }
+    .concept-text .term {
+      color: var(--purple); font-weight: 700;
+      background: rgba(125,113,255,0.1); padding: 1px 6px; border-radius: 4px;
+    }
+    .job-schema {
+      background: var(--deep); color: #fff;
+      border-radius: 14px; padding: 24px; margin-top: 20px;
+      font-family: monospace; font-size: 14px; line-height: 1.8;
+    }
+    .job-schema-arrow { color: var(--purple); font-size: 18px; }
+    .job-schema-caption {
+      font-family: 'PT Sans', sans-serif; font-size: 13px;
+      color: rgba(255,255,255,0.6); margin-top: 14px; font-style: italic;
+    }
+
+    /* ══ СЛАЙД 6: DRAG & DROP ══ */
+    .dnd-container { }
+    .dnd-zones { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+    .dnd-zone {
+      min-height: 120px; border-radius: 12px; padding: 14px;
+      border: 2px dashed var(--border);
+      background: var(--bg-gray); transition: all 0.2s;
+    }
+    .dnd-zone.job { border-color: var(--purple); background: rgba(125,113,255,0.05); }
+    .dnd-zone.notjob { border-color: var(--orange); background: rgba(255,135,46,0.05); }
+    .dnd-zone.dragover { opacity: 0.7; transform: scale(1.01); }
+    .dnd-zone-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+    .dnd-zone.job .dnd-zone-label    { color: var(--purple); }
+    .dnd-zone.notjob .dnd-zone-label { color: var(--orange); }
+    .dnd-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .dnd-card {
+      background: #fff; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 12px; font-size: 13px; line-height: 1.5; cursor: grab;
+      transition: all 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .dnd-card:hover { box-shadow: 0 4px 12px rgba(125,113,255,0.2); border-color: var(--purple); }
+    .dnd-card.dragging { opacity: 0.4; }
+    .dnd-card .dnd-hint { font-size: 11px; color: var(--text3); margin-top: 4px; font-style: italic; }
+    .dnd-card.correct-placed { background: rgba(0,201,94,0.08); border-color: var(--green); }
+    .dnd-card.wrong-placed   { background: rgba(255,135,46,0.08); border-color: var(--orange); }
+    .dnd-zone .dnd-card { cursor: default; }
+
+    /* ══ СЛАЙД 8: ШАБЛОН ══ */
+    .template-card {
+      background: var(--bg-gray); border-radius: 16px; padding: 28px;
+    }
+    .template-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+    .template-row { margin-bottom: 16px; }
+    .template-label {
+      font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 6px;
+    }
+    .template-input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; font-size: 14px; font-family: inherit;
+      background: #fff; color: var(--text); transition: border 0.15s;
+    }
+    .template-input:focus { outline: none; border-color: var(--purple); }
+    .template-example {
+      background: rgba(125,113,255,0.06); border-radius: 10px; padding: 14px;
+      font-size: 13px; color: var(--text2); line-height: 1.7; margin-top: 16px;
+      border-left: 3px solid var(--purple);
+    }
+    .template-example span { color: var(--text3); font-size: 12px; display: block; margin-bottom: 6px; }
+
+    /* ══ СЛАЙД 9: КЛИФФХЭНГЕР ══ */
+    .slide-cliff .chat-ui { border: 2px solid rgba(255,135,46,0.3); }
+    .notif-dot {
+      width: 8px; height: 8px; background: #FF2E5A; border-radius: 50%;
+      display: inline-block; margin-left: 4px;
+    }
+    .cliff-question {
+      background: var(--deep); color: #fff;
+      border-radius: 14px; padding: 24px; margin-top: 20px;
+      font-size: 17px; font-weight: 600; line-height: 1.6; text-align: center;
+    }
+    .cliff-caption {
+      text-align: center; font-size: 13px; color: var(--text3);
+      font-style: italic; margin-top: 12px;
+    }
+
+    /* ══ СЛАЙД 10: ИТОГ ══ */
+    .slide-finish {
+      background: linear-gradient(150deg, var(--deep) 0%, #1a1870 60%, #2d1f7a 100%);
+      color: #fff;
+    }
+    .finish-icon { font-size: 56px; text-align: center; margin-bottom: 20px; }
+    .finish-title { font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+    .finish-sub { text-align: center; opacity: 0.7; margin-bottom: 32px; font-size: 15px; }
+    .finish-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+    .finish-card {
+      background: rgba(255,255,255,0.1); border-radius: 12px; padding: 16px 20px;
+      font-size: 14px; line-height: 1.6;
+      border-left: 3px solid var(--purple);
+    }
+    .finish-card .num {
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;
+    }
+    .finish-template {
+      background: rgba(255,255,255,0.08); border-radius: 12px; padding: 18px;
+      font-family: monospace; font-size: 13px; line-height: 1.8;
+      margin-bottom: 28px; border: 1px solid rgba(255,255,255,0.15);
+    }
+    .first-try-badge {
+      display: none; align-items: center; gap: 6px;
+      background: rgba(0,201,94,0.15); border: 1px solid rgba(0,201,94,0.4);
+      border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 600;
+      color: var(--green); margin-bottom: 16px; width: fit-content; margin-left: auto; margin-right: auto;
+    }
+    .finish-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── ВСПОМОГАТЕЛЬНЫЕ ── */
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--purple); margin-bottom: 8px;
+    }
+    .section-title { font-size: clamp(20px, 3vw, 28px); font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    .section-sub { font-size: 15px; color: var(--text2); line-height: 1.7; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-32 { margin-top: 32px; }
+
+    /* ── ПОПАП ФИДБЕК ── */
+    .popup-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(13,11,104,0.6); backdrop-filter: blur(4px);
+      align-items: flex-end; justify-content: center; padding: 0 20px 20px;
+    }
+    .popup-overlay.show { display: flex; animation: fadeIn 0.25s ease; }
+    .popup-box {
+      background: var(--deep); color: #fff; border-radius: 20px 20px 14px 14px;
+      padding: 24px; max-width: 480px; width: 100%;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.4);
+    }
+    .popup-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .popup-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .popup-text { font-size: 14px; line-height: 1.7; opacity: 0.9; margin-bottom: 20px; }
+    .popup-box.correct { background: #2d1a6e; border-top: 3px solid var(--purple); }
+    .popup-box.wrong   { background: #3d1a00; border-top: 3px solid var(--orange); }
+
+    /* ── DROPPED ITEMS IN ZONE ── */
+    .zone-drop-area { min-height: 60px; display: flex; flex-direction: column; gap: 6px; }
+  </style>
+</head>
+<body>
+
+<!-- ХЕДЕР -->
+<div class="top-bar">
+  <div class="top-bar__logo">Tutu<span>.</span>Learning</div>
+  <div class="top-bar__meta">
+    <span class="slide-counter" id="slideCounter">1 / 11</span>
+    <div class="progress-bar">
+      <div class="progress-bar__fill" id="progressFill" style="width:9%"></div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- ══ СЛАЙД 0: ОБЛОЖКА ══ -->
+  <div class="slide slide-cover active" id="slide-0">
+    <div class="slide-inner" style="text-align:center; padding-top:20px; padding-bottom:40px;">
+      <div class="case-badge">🔍 Детективный отдел · Лайт-трек</div>
+      <div style="font-size:72px; margin-bottom:16px;">📁</div>
+      <div class="case-title">
+        ДЕЛО №001
+        <em>Антон всё сделал правильно.</em>
+      </div>
+      <div class="case-sub">
+        Закрыл <b>23 задачи</b> из 24.<br>
+        Конверсия упала на 2%.
+      </div>
+      <div class="case-sub" style="font-size:15px; margin-bottom:32px;">
+        Добро пожаловать в детективный отдел.
+      </div>
+      <button class="btn btn-white btn-lg" onclick="nextSlide()">Начать расследование →</button>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 1: ЗАЦЕПКА — ПЕРЕПИСКА ══ -->
+  <div class="slide" id="slide-1">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Зацепка</div>
+      <div class="section-title">Что-то пошло не так</div>
+      <div class="section-sub mt-16" style="margin-bottom:20px;">Вторник, конец квартала.</div>
+
+      <div class="chat-ui">
+        <div class="chat-header">
+          <span>💬</span>
+          <div class="chat-title">Рабочий чат</div>
+          <div class="chat-time-label">вт, 18:47</div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 18:47</div>
+              Антон, можешь зайти?
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 18:48</div>
+              Да, иду
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 18:52</div>
+              Смотри. Конец квартала. По спринтам всё хорошо.
+              Ты закрыл 23 задачи из 24 по плану.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 18:52</div>
+              Ну да, очень плотный квартал был. Команда молодцы.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 18:53</div>
+              Конверсия в покупку на автобусном направлении — <b>минус 2%</b>.<br>
+              По сравнению с прошлым кварталом.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 18:54</div>
+              ...
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 18:54</div>
+              Что пошло не так?
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-caption">Пауза затянулась. Антон смотрел в экран и не знал что ответить.</div>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-primary" onclick="nextSlide()">Разобраться →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 2: РАССЛЕДОВАНИЕ — УЛИКИ ══ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Расследование</div>
+      <div class="section-title">Что известно о квартале Антона</div>
+
+      <div class="clue-board mt-16">
+        <div class="clue-board-title">📌 Улики</div>
+        <div class="clues-grid">
+          <div class="clue-card">
+            <span class="clue-card-icon">📋</span>
+            <b>23 из 24 задач закрыты в срок</b>
+            Редизайн карточки маршрута, новый фильтр по времени, исправление 11 багов.
+          </div>
+          <div class="clue-card">
+            <span class="clue-card-icon">📉</span>
+            <b>Конверсия в покупку: −2%</b>
+            Было: 4,1% → Стало: 4,0%<br>
+            <span style="font-size:11px; color:#888;">(данные Марины, аналитик)</span>
+          </div>
+          <div class="clue-card">
+            <span class="clue-card-icon">💬</span>
+            <b>Отзывы пользователей</b>
+            «Удобнее стало искать» — 3 отзыва<br>
+            «Цены дороже чем у конкурента» — 7 отзывов
+          </div>
+          <div class="clue-card">
+            <span class="clue-card-icon">🔍</span>
+            <b>Что делал конкурент</b>
+            Busfor снизил цену на популярных направлениях на <b>8%</b>
+          </div>
+          <div class="clue-card" style="grid-column: 1 / -1;">
+            <span class="clue-card-icon">📌</span>
+            <b>Что Антон НЕ делал в квартале</b>
+            Интервью с пользователями — 0<br>
+            Анализ причин отказа от покупки — не проводился
+          </div>
+        </div>
+        <div class="clue-question">Почему при хорошем исполнении упала конверсия?</div>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-primary" onclick="nextSlide()">Выдвинуть версию →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 3: ВЫБОР ══ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Версия</div>
+      <div class="choice-question">
+        Антон хорошо делал свою работу весь квартал.<br>
+        Почему результат не улучшился?
+      </div>
+
+      <div class="choices-grid" id="choicesGrid">
+        <div class="choice-card" onclick="pickChoice('A')" id="choice-A">
+          <div class="choice-card-label">Версия А</div>
+          <div class="choice-card-text">Команда плохо работала. Надо было закрыть все 24 задачи, а не 23.</div>
+          <div class="choice-card-hint">Исполнение — главное</div>
+        </div>
+        <div class="choice-card" onclick="pickChoice('B')" id="choice-B">
+          <div class="choice-card-label">Версия Б</div>
+          <div class="choice-card-text">Антон делал правильно не те вещи. Задачи выполнены отлично, но не те, что влияли на конверсию.</div>
+          <div class="choice-card-hint">Направление важнее скорости</div>
+        </div>
+        <div class="choice-card" onclick="pickChoice('C')" id="choice-C">
+          <div class="choice-card-label">Версия В</div>
+          <div class="choice-card-text">Виноват конкурент — Busfor снизил цены. Внешний фактор, Антон не мог повлиять.</div>
+          <div class="choice-card-hint">Внешние обстоятельства</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 4А: ПОСЛЕДСТВИЕ А (неверно) ══ -->
+  <div class="slide" id="slide-4A">
+    <div class="slide-inner">
+      <div class="section-label" style="color:var(--orange);">Версия А · Последствие</div>
+      <div class="section-title">Реакция Саши</div>
+
+      <div class="chat-ui mt-16">
+        <div class="chat-header">
+          <span>💬</span>
+          <div class="chat-title">Продолжение разговора</div>
+        </div>
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 18:56</div>
+              Мы закрыли 23 задачи из 24. Если бы команда успела последнюю — результат был бы лучше.
+            </div>
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 18:57</div>
+              Антон. Та 24-я задача — это ещё один фильтр в поиске. Ты думаешь, пользователи не покупают из-за отсутствия фильтра?
+            </div>
+          </div>
+        </div>
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 18:57</div>
+              ...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="consequence-bubble show" style="border-left-color: var(--orange);">
+        <div style="font-size:16px; margin-bottom:6px;">🔍 Близко, но не то.</div>
+        <p>Проблема не в количестве задач. 23 или 24 — не меняет вопрос: были ли эти задачи нужны пользователю?</p>
+        <br>
+        <p>Скорость и аккуратность исполнения важны. Но сначала нужно понять — что именно исполнять.</p>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-outline" onclick="goToSlide(3)">← Попробовать ещё раз</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 4Б: ПОСЛЕДСТВИЕ Б (верно) ══ -->
+  <div class="slide" id="slide-4B">
+    <div class="slide-inner">
+      <div class="section-label" style="color:var(--purple);">Версия Б · Последствие ★</div>
+      <div class="section-title">Реакция Саши</div>
+
+      <div class="chat-ui mt-16">
+        <div class="chat-header">
+          <span>💬</span>
+          <div class="chat-title">Продолжение разговора</div>
+        </div>
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 18:56</div>
+              Я думаю, мы делали правильно не те вещи.<br><br>
+              Мы улучшали поиск и карточку маршрута. Но пользователи не покупали из-за цены — а мы об этом не знали. Потому что не спрашивали.
+            </div>
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 18:57</div>
+              Вот это уже интереснее. И что теперь?
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="consequence-bubble show correct">
+        <div style="font-size:16px; margin-bottom:6px;">★ Точно.</div>
+        <p>Продакт отвечает не за то, сколько задач закрыто — а за то, движется ли продукт к нужному результату.</p>
+        <br>
+        <p>Антон хорошо делал работу. Но не спросил: какую работу хочет пользователь?</p>
+        <br>
+        <p><b>Это и есть ключевой вопрос.</b></p>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-primary" onclick="nextSlide()">Продолжить →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 4В: ПОСЛЕДСТВИЕ В (неверно) ══ -->
+  <div class="slide" id="slide-4C">
+    <div class="slide-inner">
+      <div class="section-label" style="color:var(--orange);">Версия В · Последствие</div>
+      <div class="section-title">Реакция Саши</div>
+
+      <div class="chat-ui mt-16">
+        <div class="chat-header">
+          <span>💬</span>
+          <div class="chat-title">Продолжение разговора</div>
+        </div>
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 18:56</div>
+              Busfor снизил цены на 8%. Это повлияло на нашу конверсию. Внешний фактор, мы не могли контролировать.
+            </div>
+          </div>
+        </div>
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 18:58</div>
+              Busfor снизил цены в феврале.<br>
+              А наша конверсия начала падать в <b>январе</b>.<br><br>
+              Попробуй ещё раз.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="consequence-bubble show" style="border-left-color: var(--orange);">
+        <div style="font-size:16px; margin-bottom:6px;">🔍 Данные важны.</div>
+        <p>Внешние факторы реальны — и Busfor действительно снизил цены. Но Марина показала: конверсия падала до этого.</p>
+        <br>
+        <p>Искать одну причину снаружи — значит не видеть то, что внутри.</p>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-outline" onclick="goToSlide(3)">← Попробовать ещё раз</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 5: КОНЦЕПЦИЯ ══ -->
+  <div class="slide" id="slide-5">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Концепция</div>
+
+      <div class="concept-box">
+        <div class="concept-heading">Почему Антон делал не то?</div>
+        <div class="concept-text">
+          Потому что не спросил главное:<br><br>
+          <b>Зачем пользователь приходит на Туту?</b><br><br>
+          Не «что он делает на сайте» — а какую <em>работу</em> он хочет сделать.<br><br>
+          В продуктовом мышлении это называется<br>
+          <span class="term">job ("работа")</span> — то, ради чего пользователь <em>нанимает</em> продукт.
+        </div>
+      </div>
+
+      <div class="job-schema">
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <div>
+            <div style="color:rgba(255,255,255,0.5); font-size:11px; margin-bottom:6px; font-family:sans-serif;">ПОЛЬЗОВАТЕЛЬ</div>
+            <div>«Мне нужно добраться<br>из Москвы в Казань<br>с минимальными нервами»</div>
+          </div>
+          <div style="font-size:28px; color:var(--purple);">→</div>
+          <div>
+            <div style="color:rgba(255,255,255,0.5); font-size:11px; margin-bottom:6px; font-family:sans-serif;">ПРОДУКТ</div>
+            <div>Туту<br><span style="color:var(--purple);">нанимается</span><br>на эту работу</div>
+          </div>
+        </div>
+        <div class="job-schema-caption">
+          Пользователь не покупает билет. Он нанимает Туту, чтобы не думать о логистике.
+        </div>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-primary" onclick="nextSlide()">Понял, дальше →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 6: DRAG & DROP ══ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Закрепление</div>
+      <div class="section-title">Разбери улики</div>
+      <div class="section-sub mt-16" style="margin-bottom:20px;">
+        Что здесь является job'ом пользователя?<br>
+        Перетащи карточки в нужную зону.
+      </div>
+
+      <div class="dnd-container">
+        <div class="dnd-zones">
+          <div class="dnd-zone job" id="zone-job" ondrop="drop(event,'job')" ondragover="allowDrop(event)">
+            <div class="dnd-zone-label">✓ Это job</div>
+            <div class="zone-drop-area" id="drop-job"></div>
+          </div>
+          <div class="dnd-zone notjob" id="zone-notjob" ondrop="drop(event,'notjob')" ondragover="allowDrop(event)">
+            <div class="dnd-zone-label">✗ Это не job</div>
+            <div class="zone-drop-area" id="drop-notjob"></div>
+          </div>
+        </div>
+
+        <div class="dnd-items" id="dndItems">
+          <div class="dnd-card" draggable="true" id="dnd-1" ondragstart="dragStart(event)" data-correct="notjob">
+            «Купить билет на автобус»
+            <div class="dnd-hint">действие в интерфейсе</div>
+          </div>
+          <div class="dnd-card" draggable="true" id="dnd-2" ondragstart="dragStart(event)" data-correct="job">
+            «Добраться до мамы на выходных без стресса»
+            <div class="dnd-hint">результат, который хочет получить</div>
+          </div>
+          <div class="dnd-card" draggable="true" id="dnd-3" ondragstart="dragStart(event)" data-correct="notjob">
+            «Нажать кнопку "Найти маршрут"»
+            <div class="dnd-hint">клик в интерфейсе</div>
+          </div>
+          <div class="dnd-card" draggable="true" id="dnd-4" ondragstart="dragStart(event)" data-correct="job">
+            «Не переплатить и чувствовать себя умным»
+            <div class="dnd-hint">эмоциональная работа</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="dnd-feedback" class="consequence-bubble correct" style="margin-top:16px;">
+        <div style="font-size:16px; margin-bottom:6px;">★ Верно!</div>
+        <p>Job — это не кнопка и не экран. Это результат, который пользователь хочет получить в своей жизни.</p>
+        <br>
+        <p>Туту нанимают не за «купить билет». За «добраться туда, куда нужно, с минимальными усилиями».</p>
+        <br>
+        <p>Именно поэтому Антон промахнулся — он улучшал интерфейс, а пользователей останавливала цена.</p>
+      </div>
+
+      <div class="mt-24" style="text-align:center;" id="dnd-next-btn" style="display:none;">
+        <button class="btn btn-primary" onclick="nextSlide()">Дальше →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 7: ИСТОРИЯ ПРОДОЛЖАЕТСЯ ══ -->
+  <div class="slide" id="slide-7">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Поворот</div>
+      <div class="section-title">Следующее утро</div>
+
+      <div class="chat-ui mt-16">
+        <div class="chat-header">
+          <span>💬</span>
+          <div class="chat-title">Рабочий чат</div>
+          <div class="chat-time-label">ср, 10:23</div>
+        </div>
+
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 10:23</div>
+              Марин, можешь показать данные по отказу от покупки? На каком шаге люди уходят?
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar marina">М</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Марина · 10:26</div>
+              Смотри. 67% уходят на экране сравнения маршрутов. Видят цену — и закрывают.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 10:27</div>
+              То есть они приходят с намерением купить, а цена их останавливает?
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar marina">М</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Марина · 10:28</div>
+              Примерно да. Причём на популярных направлениях мы дороже на 5–15%.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-msg right">
+          <div class="avatar anton">А</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Антон · 10:29</div>
+              Понял. Значит я весь квартал улучшал то, до чего они даже не доходили.
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-caption">Это был момент, когда Антон впервые задал правильный вопрос.</div>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-primary" onclick="nextSlide()">Что дальше? →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 8: ИНСТРУМЕНТ ══ -->
+  <div class="slide" id="slide-8">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Инструмент</div>
+      <div class="section-title">Шаблон: какую работу нанимает пользователь?</div>
+      <div class="section-sub mt-16" style="margin-bottom:20px;">
+        Антон теперь знает вопрос. Вот инструмент, чтобы его задать.<br>
+        Заполни шаблон для любой фичи из своего бэклога.
+      </div>
+
+      <div class="template-card">
+        <h3>📋 Job Story</h3>
+        <div class="template-row">
+          <div class="template-label">Когда я...</div>
+          <input class="template-input" type="text" placeholder="ситуация / контекст пользователя" id="tmpl-1">
+        </div>
+        <div class="template-row">
+          <div class="template-label">я хочу...</div>
+          <input class="template-input" type="text" placeholder="действие или результат" id="tmpl-2">
+        </div>
+        <div class="template-row">
+          <div class="template-label">чтобы...</div>
+          <input class="template-input" type="text" placeholder="глубинная цель" id="tmpl-3">
+        </div>
+
+        <div class="template-example">
+          <span>Пример заполненного шаблона:</span>
+          Когда я планирую поездку к родителям в другой город, я хочу быстро сравнить варианты автобуса и поезда, чтобы не переплатить и не тратить время на разные сайты.
+        </div>
+      </div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-primary" onclick="nextSlide()">Сохранить и дальше →</button>
+        <br><br>
+        <a href="#" style="font-size:13px; color:var(--text3);" onclick="nextSlide(); return false;">Пропустить</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 9: КЛИФФХЭНГЕР ══ -->
+  <div class="slide slide-cliff" id="slide-9">
+    <div class="slide-inner">
+      <div class="section-label">Дело №001 · Продолжение</div>
+
+      <div class="chat-ui mt-16">
+        <div class="chat-header">
+          <span>💬</span>
+          <div class="chat-title">Рабочий чат</div>
+          <div class="chat-time-label">вт, 19:44 <span class="notif-dot"></span></div>
+        </div>
+
+        <div style="padding: 10px 0; font-size:14px; color:var(--text3); text-align:center;">
+          Конец рабочего дня.<br>
+          Антон написал в заметки: <b style="color:var(--text);">«Мы делали правильно не то.»</b><br><br>
+          Телефон завибрировал.
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar cpo">С</div>
+          <div>
+            <div class="msg-bubble">
+              <div class="msg-name">Саша / CPO · 19:44</div>
+              Встреча завтра в 10.<br>
+              Хочу услышать твою версию что делаем в следующем квартале.<br>
+              Подготовься.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cliff-question">
+        Антон понял проблему.<br>
+        Но как объяснить Саше,<br>
+        что именно нужно делать?
+      </div>
+
+      <div class="cliff-caption">Это следующее дело.</div>
+
+      <div class="mt-24" style="text-align:center;">
+        <button class="btn btn-primary" onclick="nextSlide()">Закрыть дело №001 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ СЛАЙД 10: ИТОГ ══ -->
+  <div class="slide slide-finish" id="slide-10">
+    <div class="slide-inner" style="text-align:center;">
+      <div class="finish-icon">✅</div>
+      <div class="finish-title">Дело №001 закрыто</div>
+      <div class="finish-sub">Лайт-трек · Модуль 1 из 4</div>
+
+      <div id="firstTryBadge" class="first-try-badge">
+        ★ Первая попытка — отличный результат
+      </div>
+
+      <div class="finish-cards">
+        <div class="finish-card">
+          <div class="num">Вывод 1</div>
+          Продакт отвечает за результат, а не за количество закрытых задач.
+        </div>
+        <div class="finish-card">
+          <div class="num">Вывод 2</div>
+          <b>job ("работа")</b> — это то, ради чего пользователь нанимает продукт. Не действие в интерфейсе, а результат в жизни.
+        </div>
+        <div class="finish-card">
+          <div class="num">Вывод 3</div>
+          Вопрос «какую работу нанимает пользователь?» важнее вопроса «как лучше сделать фичу?»
+        </div>
+      </div>
+
+      <div class="finish-template">
+        📋 <b>Шаблон job story:</b><br>
+        Когда я [ситуация],<br>
+        я хочу [результат],<br>
+        чтобы [цель].
+      </div>
+
+      <div class="finish-btns">
+        <button class="btn btn-white" onclick="alert('Следующий модуль в разработке — скоро!')">Следующее дело →</button>
+        <button class="btn btn-outline btn-white" onclick="shareResult()">Поделиться</button>
+      </div>
+
+      <div style="margin-top:24px; opacity:0.5; font-size:13px;">
+        Курс AJTBD · Tutu Learning · Лайт-трек
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- ПОПАП ФИДБЕК -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box" id="popupBox">
+    <span class="popup-icon" id="popupIcon"></span>
+    <div class="popup-title" id="popupTitle"></div>
+    <div class="popup-text" id="popupText"></div>
+    <button class="btn btn-white" id="popupBtn" onclick="closePopup()">Понятно</button>
+  </div>
+</div>
+
+<script>
+  // ── СОСТОЯНИЕ ──────────────────────────────────────────────────────────────
+  const SLIDE_ORDER = [0, 1, 2, 3, null, 5, 6, 7, 8, 9, 10]; // null = зависит от выбора
+  const SLIDE_IDS   = ['slide-0','slide-1','slide-2','slide-3',null,'slide-5','slide-6','slide-7','slide-8','slide-9','slide-10'];
+  const TOTAL_SLIDES = 11;
+
+  let currentStep = 0;    // индекс в логической последовательности
+  let choiceMade   = null; // 'A', 'B', 'C'
+  let firstTry     = true;
+  let dndDone      = false;
+  let dragId       = null;
+  const placements = {}; // id → zone
+
+  // ── НАВИГАЦИЯ ──────────────────────────────────────────────────────────────
+  function showSlide(id) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+    updateProgress();
+  }
+
+  function nextSlide() {
+    if (currentStep === 3) {
+      // после слайда 3 идём на последствие Б (при вызове через кнопку после правильного)
+      currentStep = 4;
+      showSlide('slide-5');
+      return;
+    }
+    if (currentStep === 4) { currentStep = 5; showSlide('slide-5'); return; }
+
+    currentStep++;
+    const ids = ['slide-0','slide-1','slide-2','slide-3','slide-4B','slide-5','slide-6','slide-7','slide-8','slide-9','slide-10'];
+    if (currentStep < ids.length) showSlide(ids[currentStep]);
+  }
+
+  function goToSlide(step) {
+    currentStep = step;
+    const ids = ['slide-0','slide-1','slide-2','slide-3','slide-4B','slide-5','slide-6','slide-7','slide-8','slide-9','slide-10'];
+    if (step < ids.length) showSlide(ids[step]);
+  }
+
+  function updateProgress() {
+    const stepForProgress = currentStep;
+    const pct = Math.round((stepForProgress / (TOTAL_SLIDES - 1)) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('slideCounter').textContent = (stepForProgress + 1) + ' / ' + TOTAL_SLIDES;
+  }
+
+  // ── ВЫБОР (слайд 3) ────────────────────────────────────────────────────────
+  function pickChoice(v) {
+    choiceMade = v;
+
+    // сброс стилей
+    ['A','B','C'].forEach(c => {
+      const el = document.getElementById('choice-' + c);
+      el.classList.remove('selected','wrong');
+    });
+
+    document.getElementById('choice-' + v).classList.add(v === 'B' ? 'selected' : 'wrong');
+
+    if (v !== 'B') firstTry = false;
+
+    // плавный переход к слайду последствия
+    setTimeout(() => {
+      currentStep = 4;
+      if (v === 'A') { showSlide('slide-4A'); }
+      else if (v === 'B') { showSlide('slide-4B'); }
+      else { showSlide('slide-4C'); }
+    }, 300);
+  }
+
+  // ── DRAG & DROP (слайд 6) ──────────────────────────────────────────────────
+  function dragStart(e) {
+    dragId = e.target.id;
+    e.target.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', e.target.id);
+  }
+
+  function allowDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('dragover');
+  }
+
+  document.addEventListener('dragend', () => {
+    document.querySelectorAll('.dnd-card').forEach(c => c.classList.remove('dragging'));
+    document.querySelectorAll('.dnd-zone').forEach(z => z.classList.remove('dragover'));
+  });
+
+  function drop(e, zone) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('dragover');
+    const cardId = e.dataTransfer.getData('text/plain');
+    const card = document.getElementById(cardId);
+    if (!card) return;
+
+    placements[cardId] = zone;
+
+    const dropArea = document.getElementById('drop-' + zone);
+    dropArea.appendChild(card);
+    card.draggable = false;
+
+    const correct = card.dataset.correct;
+    card.classList.remove('correct-placed','wrong-placed');
+    card.classList.add(correct === zone ? 'correct-placed' : 'wrong-placed');
+
+    checkDndComplete();
+  }
+
+  function checkDndComplete() {
+    const all = ['dnd-1','dnd-2','dnd-3','dnd-4'];
+    const allPlaced = all.every(id => placements[id]);
+    if (!allPlaced) return;
+
+    const allCorrect = all.every(id => placements[id] === document.getElementById(id).dataset.correct);
+
+    if (allCorrect) {
+      document.getElementById('dnd-feedback').classList.add('show');
+      document.getElementById('dnd-next-btn').style.display = 'block';
+      dndDone = true;
+    } else {
+      // подсветим неправильные, но не сбрасываем
+      showPopup('🔍', 'Не совсем', 'Некоторые карточки стоят не там. Попробуй переставить выделенные красным.', 'wrong');
+    }
+  }
+
+  // ── ПОПАП ──────────────────────────────────────────────────────────────────
+  function showPopup(icon, title, text, type) {
+    document.getElementById('popupIcon').textContent = icon;
+    document.getElementById('popupTitle').textContent = title;
+    document.getElementById('popupText').innerHTML = text;
+    document.getElementById('popupBox').className = 'popup-box ' + (type || '');
+    document.getElementById('popupOverlay').classList.add('show');
+  }
+
+  function closePopup() {
+    document.getElementById('popupOverlay').classList.remove('show');
+  }
+
+  // ── ПОДЕЛИТЬСЯ ─────────────────────────────────────────────────────────────
+  function shareResult() {
+    const text = 'Закрыл Дело №001 в курсе AJTBD Tutu! Узнал, что такое job — работа, ради которой пользователь нанимает продукт 🔍';
+    if (navigator.share) {
+      navigator.share({ title: 'AJTBD Tutu · Дело №001', text });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => showPopup('📋', 'Скопировано!', text, 'correct'));
+    }
+  }
+
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  // скрыть DnD элементы изначально
+  document.getElementById('dnd-feedback').style.display = 'none';
+  document.getElementById('dnd-next-btn').style.display = 'none';
+
+  // первый слайд уже active
+
+  // при приходе на финал показать бэдж если с первой попытки
+  const origGoToFinish = nextSlide;
+  document.querySelector('#slide-9 button').addEventListener('click', () => {
+    if (firstTry) {
+      document.getElementById('firstTryBadge').style.display = 'flex';
+    }
+  }, { once: true });
+</script>
+
+</body>
+</html>
